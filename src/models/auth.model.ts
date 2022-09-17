@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
-import { User } from '../types';
+import { User, UserDocument } from '../types';
 
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, trim: true, unique: true },
+    fullname: { type: String, trim: true, default: '' },
     email: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true, trim: true },
     avatar: {
@@ -25,9 +26,10 @@ const userSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['pending', 'active', 'banned'],
+      default: 'pending',
     },
     slug: { type: String, required: true },
   },
   { timestamps: true }
 );
-export default mongoose.model<User>('user', userSchema);
+export default mongoose.model<UserDocument>('user', userSchema);
