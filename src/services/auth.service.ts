@@ -13,7 +13,7 @@ import { DecodedToken, NewUser, Token, User, UserDocument, UserLogin } from '../
 
 const CLIENT_URL = process.env.CLIENT_URL;
 
-// register
+// Register
 export const register = async (body: NewUser) => {
   const { username, email, password } = body;
 
@@ -84,7 +84,6 @@ export const login = async (data: UserLogin) => {
   }
   // If cannot find user
   if (!user) throw createErrors(400, 'Username or Email does not exists');
-
   if (user.status === 'pending')
     throw createErrors(400, 'Account has not actived. Please check your email');
   if (user.status === 'banned') throw createErrors(400, 'Account has banned');
