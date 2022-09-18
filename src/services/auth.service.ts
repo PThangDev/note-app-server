@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 
 import { createResponseSuccess, createSlug, sendEmail, validateEmail } from '../helpers';
@@ -27,11 +27,11 @@ export const register = async (body: NewUser) => {
 
   const userLoginByUsername = await AuthModel.findOne({ username });
 
-  if (userLoginByUsername) throw createErrors(400, 'Username has already exist!');
+  if (userLoginByUsername) throw createHttpError(400, 'Username has already exist!');
 
   const userLoginByEmail = await AuthModel.findOne({ email });
 
-  if (userLoginByEmail) throw createErrors(400, 'Email has already exist!');
+  if (userLoginByEmail) throw createHttpError(400, 'Email has already exist!');
 
   const passwordHash = await bcrypt.hash(password, 12);
 
@@ -71,7 +71,7 @@ export const activeAccount = async (active_token: string) => {
 
   const { _id } = decodedToken;
 
-  if (!_id) throw createErrors(401, 'Invalid authentication');
+  if (!_id) throw createHttpError(401, 'Invalid authentication');
 
   const activeUser = await AuthModel.findByIdAndUpdate(
     _id,
@@ -93,15 +93,15 @@ export const login = async (data: UserLogin) => {
     user = await AuthModel.findOne({ username: account });
   }
   // If cannot find user
-  if (!user) throw createErrors(400, 'Username or Email does not exists');
+  if (!user) throw createHttpError(400, 'Username or Email does not exists');
   if (user.status === 'pending')
-    throw createErrors(400, 'Account has not actived. Please check your email');
-  if (user.status === 'banned') throw createErrors(400, 'Account has banned');
+    throw createHttpError(400, 'Account has not actived. Please check your email');
+  if (user.status === 'banned') throw createHttpError(400, 'Account has banned');
 
   // Compare password
   const isMatchPassword = await bcrypt.compare(password, user.password);
 
-  if (!isMatchPassword) throw createErrors(400, 'Password is incorrect');
+  if (!isMatchPassword) throw createHttpError(400, 'Password is incorrect');
 
   const access_token = generateAccessToken({ _id: user._id });
   const refresh_token = generateRefreshToken({ _id: user._id });
@@ -123,7 +123,7 @@ export const changePassword = async (data: UserChangePassword) => {
   // Compare old password
   const isMatchPassword = await bcrypt.compare(oldPassword, user.password);
 
-  if (!isMatchPassword) throw createErrors(400, 'Old password does not match');
+  if (!isMatchPassword) throw createHttpError(400, 'Old password does not match');
 
   const newPasswordHash = await bcrypt.hash(newPassword, 12);
 
@@ -139,10 +139,10 @@ export const changePassword = async (data: UserChangePassword) => {
 export const forgotPassword = async (email: string) => {
   const user = await AuthModel.findOne({ email });
 
-  if (!user) throw createErrors(400, 'Email does not exists');
+  if (!user) throw createHttpError(400, 'Email does not exists');
 
   if (user.type !== 'register')
-    throw createErrors(400, `Quick login account with ${user.type} can't use this function.`);
+    throw createHttpError(400, `Quick login account with ${user.type} can't use this function.`);
 
   const access_token = generateAccessToken({ _id: user._id });
   const url = `${CLIENT_URL}/reset-password/${access_token}`;

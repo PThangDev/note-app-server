@@ -1,4 +1,4 @@
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
 import { TopicModel } from '../models';
@@ -27,7 +27,7 @@ export const getTopic = async (req: RequestAuth) => {
     })
     .populate({ path: 'notes' });
 
-  if (!noteDetail) throw createErrors(404, 'Note id is note valid');
+  if (!noteDetail) throw createHttpError(404, 'Note id is note valid');
 
   return createResponseSuccess({ data: noteDetail, message: 'Get note detail successfully' });
 };
@@ -78,7 +78,8 @@ export const updateTopic = async (req: RequestAuth) => {
     new: true,
   });
 
-  if (!topicUpdated) throw createErrors(400, 'Update note failed. Invalid id or wrong data update');
+  if (!topicUpdated)
+    throw createHttpError(400, 'Update note failed. Invalid id or wrong data update');
 
   return createResponseSuccess({ data: topicUpdated, message: 'Update note successfully!' });
 };

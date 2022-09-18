@@ -1,21 +1,53 @@
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
+import FilterDocumentAPI from '../helpers/FilterDocumentAPI';
 import { NoteModel } from '../models';
-import { NoteUpdate, RequestAuth, User } from '../types';
+import { MetaPagination, Note, NoteUpdate, Pagination, RequestAuth, User } from '../types';
 
 // Get notes
 export const getNotes = async (req: RequestAuth) => {
   const user = req.user as User;
+  const { q: search } = req.query;
 
-  const filter = {
+  const filter: { [key: string]: any } = {
     ...req.query,
     user: user._id,
   };
 
-  const notes = await NoteModel.find(filter);
+  if (search) {
+    filter['$text'] = { $search: search };
+  }
 
-  return createResponseSuccess({ data: notes, message: 'Get notes successfully' });
+  const notesFiltered = new FilterDocumentAPI(
+    NoteModel.find(filter)
+      .populate({ path: 'user', select: '-password' })
+      .populate({ path: 'topics' }),
+    filter
+  )
+    .search()
+    .filter()
+    .pagination()
+    .sortable();
+
+  const count = new FilterDocumentAPI(NoteModel.find(filter), filter).search().filter().count();
+
+  const [notes, totalItems] = await Promise.all([notesFiltered.query, count.query]);
+
+  const pageCount = Math.ceil(totalItems / notesFiltered.limit);
+
+  const pagination: Pagination = {
+    limit: notesFiltered.limit,
+    total: totalItems,
+    page_size: notes.length,
+    page_count: pageCount,
+  };
+
+  return createResponseSuccess<Note[], MetaPagination>({
+    data: notes,
+    message: 'Get notes successfully',
+    meta: { pagination },
+  });
 };
 // Get note by id
 export const getNoteDetail = async (req: RequestAuth) => {
@@ -27,7 +59,7 @@ export const getNoteDetail = async (req: RequestAuth) => {
     select: '-password',
   });
 
-  if (!note) throw createErrors(404, 'Note does note exist');
+  if (!note) throw createHttpError(404, 'Note does note exist');
 
   return createResponseSuccess({ data: note, message: 'Get note detail by id successfully' });
 };
@@ -86,7 +118,7 @@ export const updateNote = async (req: RequestAuth) => {
     new: true,
   });
 
-  if (!noteUpdated) throw createErrors(400, 'Update note failed. Account or note id is invalid');
+  if (!noteUpdated) throw createHttpError(400, 'Update note failed. Account or note id is invalid');
 
   return createResponseSuccess({ data: noteUpdated, message: 'Update note successfully' });
 };
@@ -97,7 +129,7 @@ export const deleteNote = async (req: RequestAuth) => {
 
   const noteDeleted = await NoteModel.findOneAndDelete({ _id: id, user: user._id });
 
-  if (!noteDeleted) throw createErrors(404, 'Note does not exist');
+  if (!noteDeleted) throw createHttpError(404, 'Note does not exist');
 
   return createResponseSuccess({ data: noteDeleted, message: 'Delete note successfully' });
 };
@@ -112,7 +144,7 @@ export const deleteNotes = async (req: RequestAuth) => {
   );
 
   if (!notesDeleted || notesDeleted.deletedCount === 0)
-    throw createErrors(400, 'Delete failed. Invalid notes');
+    throw createHttpError(400, 'Delete failed. Invalid notes');
 
   return createResponseSuccess({ data: notesDeleted, message: 'Delete many notes successfully' });
 };
