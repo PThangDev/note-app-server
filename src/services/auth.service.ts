@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import createErrors from 'http-errors';
 import jwt from 'jsonwebtoken';
 
-import { createResponseSuccess, createSlug, validateEmail } from '../helpers';
+import { createResponseSuccess, createSlug, sendEmail, validateEmail } from '../helpers';
 import {
   generateAccessToken,
   generateActiveToken,
@@ -41,6 +41,8 @@ export const register = async (body: NewUser) => {
   });
 
   const url = `${CLIENT_URL}/auth/active/${active_token}`;
+
+  await sendEmail(email, url, 'Verify your email address');
 
   return createResponseSuccess<User, Token & { url: string }>({
     data: { ...newUser._doc, password: '' } as User,
