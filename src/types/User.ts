@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export enum TypeLogin {
   'register' = 'register',
   'google' = 'google',
@@ -38,4 +40,8 @@ export interface NewUser {
 export interface UserLogin {
   account: string;
   password: string;
+}
+
+export interface RequestAuth extends Request {
+  user?: User;
 }

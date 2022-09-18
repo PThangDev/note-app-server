@@ -107,3 +107,5 @@ export const login = async (data: UserLogin) => {
     },
   });
 };
+
+// Change password
