@@ -134,3 +134,24 @@ export const changePassword = async (data: UserChangePassword) => {
     message: 'Change password successfully!',
   });
 };
+
+// Forgot password
+export const forgotPassword = async (email: string) => {
+  const user = await AuthModel.findOne({ email });
+
+  if (!user) throw createErrors(400, 'Email does not exists');
+
+  if (user.type !== 'register')
+    throw createErrors(400, `Quick login account with ${user.type} can't use this function.`);
+
+  const access_token = generateAccessToken({ _id: user._id });
+  const url = `${CLIENT_URL}/reset-password/${access_token}`;
+
+  await sendEmail(email, url, 'Forgot password?');
+
+  return createResponseSuccess<null, Token>({
+    data: null,
+    message: 'Sucessfully. Check your email to change password',
+    meta: { access_token },
+  });
+};
