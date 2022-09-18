@@ -55,3 +55,16 @@ export const changePassword = async (req: RequestAuth, res: Response, next: Next
     next(error);
   }
 };
+
+// [POST] forgot password
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    const response = await authService.forgotPassword(email);
+
+    return res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
