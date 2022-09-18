@@ -2,18 +2,26 @@ import bcrypt from 'bcrypt';
 import createErrors from 'http-errors';
 import jwt from 'jsonwebtoken';
 
-import { createResponseSuccess, createSlug, validateEmail } from '../helpers';
+import { createResponseSuccess, createSlug, sendEmail, validateEmail } from '../helpers';
 import {
   generateAccessToken,
   generateActiveToken,
   generateRefreshToken,
 } from '../helpers/generateToken';
 import { AuthModel } from '../models';
-import { DecodedToken, NewUser, Token, User, UserDocument, UserLogin } from '../types';
+import {
+  DecodedToken,
+  NewUser,
+  Token,
+  User,
+  UserChangePassword,
+  UserDocument,
+  UserLogin,
+} from '../types';
 
 const CLIENT_URL = process.env.CLIENT_URL;
 
-// register
+// Register
 export const register = async (body: NewUser) => {
   const { username, email, password } = body;
 
@@ -41,6 +49,8 @@ export const register = async (body: NewUser) => {
   });
 
   const url = `${CLIENT_URL}/auth/active/${active_token}`;
+
+  await sendEmail(email, url, 'Verify your email address');
 
   return createResponseSuccess<User, Token & { url: string }>({
     data: { ...newUser._doc, password: '' } as User,
@@ -84,7 +94,6 @@ export const login = async (data: UserLogin) => {
   }
   // If cannot find user
   if (!user) throw createErrors(400, 'Username or Email does not exists');
-
   if (user.status === 'pending')
     throw createErrors(400, 'Account has not actived. Please check your email');
   if (user.status === 'banned') throw createErrors(400, 'Account has banned');
@@ -104,5 +113,24 @@ export const login = async (data: UserLogin) => {
       access_token,
       refresh_token,
     },
+  });
+};
+
+// Change password
+export const changePassword = async (data: UserChangePassword) => {
+  const { oldPassword, newPassword, user } = data;
+
+  // Compare old password
+  const isMatchPassword = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatchPassword) throw createErrors(400, 'Old password does not match');
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+  await AuthModel.findByIdAndUpdate(user._id, { password: newPasswordHash }, { new: true });
+
+  return createResponseSuccess({
+    data: null,
+    message: 'Change password successfully!',
   });
 };

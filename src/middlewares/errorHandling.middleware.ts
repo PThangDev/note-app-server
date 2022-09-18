@@ -12,21 +12,34 @@ const errorHandlingMiddleware: ErrorRequestHandler = (err, req, res, next) => {
     return res.status(status).json({
       status,
       success: false,
-      data: { message: `${uppercaseFirstLetter(fieldError)} has already exists` },
+      message: `${uppercaseFirstLetter(fieldError)} has already exists`,
+      data: err,
     });
   }
+
   if (err.path === '_id') {
     return res
       .status(status)
-      .json({ status, success: false, data: { message: 'Invalid Id. Please try again' } });
+      .json({ status, success: false, message: 'Invalid Id. Please try again', data: err });
   }
+
   if (err.message === 'jwt expired') {
     return res.status(401).json({
       status: 401,
       success: false,
-      data: { ...err, message: 'Session expired. Please login again' },
+      message: 'Session expired. Please login again',
+      data: err,
     });
   }
-  return res.status(status).json({ status, success: false, data: err });
+
+  if (err?.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      status: 401,
+      success: false,
+      message: 'Unauthorized. Please login or register',
+      data: err,
+    });
+  }
+  return res.status(status).json({ status, success: false, message: err.message });
 };
 export default errorHandlingMiddleware;

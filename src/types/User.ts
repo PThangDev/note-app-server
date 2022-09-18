@@ -1,6 +1,20 @@
-export type TypeLogin = 'register' | 'google' | 'facebook';
-export type RoleUser = 'admin' | 'customer';
-export type StatusUser = 'pending' | 'active' | 'banned';
+import { Request } from 'express';
+
+export enum TypeLogin {
+  'register' = 'register',
+  'google' = 'google',
+  'facebook' = 'facebook',
+}
+export enum RoleUser {
+  'admin' = 'admin',
+  'customer' = 'customer',
+}
+
+export enum StatusUser {
+  'pending' = 'pending',
+  'active' = 'active',
+  'banned' = 'banned',
+}
 
 export interface User {
   _id: string;
@@ -14,7 +28,7 @@ export interface User {
 }
 
 export interface UserDocument extends User, Document {
-  _doc: object;
+  _doc: User;
 }
 
 export interface NewUser {
@@ -26,4 +40,14 @@ export interface NewUser {
 export interface UserLogin {
   account: string;
   password: string;
+}
+
+export interface UserChangePassword {
+  oldPassword: string;
+  newPassword: string;
+  user: User;
+}
+
+export interface RequestAuth extends Request {
+  user?: User;
 }
