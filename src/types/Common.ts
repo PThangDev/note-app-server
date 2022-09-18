@@ -32,3 +32,9 @@ export interface DataResponseSuccess<T, M> {
   status?: number;
   meta?: M;
 }
+
+export interface BaseParams {
+  limit?: string;
+  page?: string;
+  search?: string;
+}
