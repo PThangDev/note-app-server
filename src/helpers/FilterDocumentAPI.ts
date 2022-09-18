@@ -1,15 +1,17 @@
 class FilterDocumentAPI {
-  private MAX_LIMIT: number;
+  public limit: number;
   private DEFAULT_PAGE: number;
+
   constructor(public query: any, private queryString: any) {
-    this.MAX_LIMIT = 300;
+    this.limit = 300;
     this.DEFAULT_PAGE = 1;
   }
   pagination() {
-    const limit = Number(this.queryString.limit) || this.MAX_LIMIT;
+    const limit = Number(this.queryString.limit) || this.limit;
     const page = Number(this.queryString.page) || this.DEFAULT_PAGE;
     const skip = limit * (page - 1);
 
+    this.limit = limit;
     this.query = this.query.limit(limit).skip(skip);
     return this;
   }

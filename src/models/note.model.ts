@@ -8,7 +8,7 @@ const noteSchema = new mongoose.Schema(
       required: true,
       ref: 'user',
     },
-    topics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'topics' }],
+    topics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'topic' }],
     title: {
       type: String,
       required: true,
