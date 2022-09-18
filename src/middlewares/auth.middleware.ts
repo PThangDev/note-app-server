@@ -17,7 +17,7 @@ const authMiddleware = async (req: RequestAuth, res: Response, next: NextFunctio
 
     if (!decodedToken) throw createErrors(401, 'Unauthorization!');
 
-    const user = await AuthModel.findOne({ _id: decodedToken._id }).select('-password');
+    const user = await AuthModel.findOne({ _id: decodedToken._id });
 
     if (!user) throw createErrors(401, 'User does not exists');
 

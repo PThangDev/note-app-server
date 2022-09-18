@@ -42,6 +42,12 @@ export interface UserLogin {
   password: string;
 }
 
+export interface UserChangePassword {
+  oldPassword: string;
+  newPassword: string;
+  user: User;
+}
+
 export interface RequestAuth extends Request {
   user?: User;
 }

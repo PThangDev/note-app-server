@@ -9,7 +9,15 @@ import {
   generateRefreshToken,
 } from '../helpers/generateToken';
 import { AuthModel } from '../models';
-import { DecodedToken, NewUser, Token, User, UserDocument, UserLogin } from '../types';
+import {
+  DecodedToken,
+  NewUser,
+  Token,
+  User,
+  UserChangePassword,
+  UserDocument,
+  UserLogin,
+} from '../types';
 
 const CLIENT_URL = process.env.CLIENT_URL;
 
@@ -109,3 +117,20 @@ export const login = async (data: UserLogin) => {
 };
 
 // Change password
+export const changePassword = async (data: UserChangePassword) => {
+  const { oldPassword, newPassword, user } = data;
+
+  // Compare old password
+  const isMatchPassword = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatchPassword) throw createErrors(400, 'Old password does not match');
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+  await AuthModel.findByIdAndUpdate(user._id, { password: newPasswordHash }, { new: true });
+
+  return createResponseSuccess({
+    data: null,
+    message: 'Change password successfully!',
+  });
+};
