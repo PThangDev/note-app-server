@@ -1,4 +1,4 @@
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
 import { NoteModel } from '../models';
@@ -27,7 +27,7 @@ export const getNoteDetail = async (req: RequestAuth) => {
     select: '-password',
   });
 
-  if (!note) throw createErrors(404, 'Note does note exist');
+  if (!note) throw createHttpError(404, 'Note does note exist');
 
   return createResponseSuccess({ data: note, message: 'Get note detail by id successfully' });
 };
@@ -86,7 +86,7 @@ export const updateNote = async (req: RequestAuth) => {
     new: true,
   });
 
-  if (!noteUpdated) throw createErrors(400, 'Update note failed. Account or note id is invalid');
+  if (!noteUpdated) throw createHttpError(400, 'Update note failed. Account or note id is invalid');
 
   return createResponseSuccess({ data: noteUpdated, message: 'Update note successfully' });
 };
@@ -97,7 +97,7 @@ export const deleteNote = async (req: RequestAuth) => {
 
   const noteDeleted = await NoteModel.findOneAndDelete({ _id: id, user: user._id });
 
-  if (!noteDeleted) throw createErrors(404, 'Note does not exist');
+  if (!noteDeleted) throw createHttpError(404, 'Note does not exist');
 
   return createResponseSuccess({ data: noteDeleted, message: 'Delete note successfully' });
 };
@@ -112,7 +112,7 @@ export const deleteNotes = async (req: RequestAuth) => {
   );
 
   if (!notesDeleted || notesDeleted.deletedCount === 0)
-    throw createErrors(400, 'Delete failed. Invalid notes');
+    throw createHttpError(400, 'Delete failed. Invalid notes');
 
   return createResponseSuccess({ data: notesDeleted, message: 'Delete many notes successfully' });
 };

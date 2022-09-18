@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 
 import { authService } from '../services';
 import { RequestAuth } from '../types';
@@ -46,7 +46,7 @@ export const changePassword = async (req: RequestAuth, res: Response, next: Next
     const user = req.user;
     const { newPassword, oldPassword } = req.body;
 
-    if (!user) throw createErrors(404, 'User not found');
+    if (!user) throw createHttpError(404, 'User not found');
 
     const response = await authService.changePassword({ user, oldPassword, newPassword });
 

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import createErrors from 'http-errors';
+import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 
 import { AuthModel } from '../models';
@@ -11,15 +11,15 @@ const authMiddleware = async (req: RequestAuth, res: Response, next: NextFunctio
 
     const token = bearerToken?.split(' ')[1];
 
-    if (!token) throw createErrors(401, 'Unauthorization!');
+    if (!token) throw createHttpError(401, 'Unauthorization!');
 
     const decodedToken = <DecodedToken>jwt.verify(token, `${process.env.ACCESS_TOKEN_SECRET}`);
 
-    if (!decodedToken) throw createErrors(401, 'Unauthorization!');
+    if (!decodedToken) throw createHttpError(401, 'Unauthorization!');
 
     const user = await AuthModel.findOne({ _id: decodedToken._id });
 
-    if (!user) throw createErrors(401, 'User does not exists');
+    if (!user) throw createHttpError(401, 'User does not exists');
 
     req.user = user;
 
