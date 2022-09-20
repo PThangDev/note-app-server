@@ -53,6 +53,7 @@ export const register = async (body: NewUser) => {
   await sendEmail(email, url, 'Verify your email address');
 
   return createResponseSuccess<User, Token & { url: string }>({
+    status: 201,
     data: { ...newUser._doc, password: '' } as User,
     message: '',
     meta: {
@@ -154,4 +155,10 @@ export const forgotPassword = async (email: string) => {
     message: 'Sucessfully. Check your email to change password',
     meta: { access_token },
   });
+};
+// Info user
+export const getInfoUser = async (user: User) => {
+  const _user = { ...user, password: '' };
+
+  return createResponseSuccess({ data: _user, message: 'Get info user successfully' });
 };

@@ -11,4 +11,6 @@ authRouter.post('/forgot-password', authController.forgotPassword);
 authRouter.put('/active-account', authController.activeAccount);
 authRouter.put('/change-password', authMiddleware, authController.changePassword);
 
+authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
+
 export default authRouter;
