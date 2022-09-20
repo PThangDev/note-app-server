@@ -24,7 +24,8 @@
     "nodemailer": "^6.7.8",
     "pino": "^8.5.0",
     "pino-pretty": "^9.1.0",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
