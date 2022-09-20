@@ -1,7 +1,8 @@
 import express from 'express';
 
 import { topicController } from '../controllers';
-import { authMiddleware } from '../middlewares';
+import { authMiddleware, validateMiddleware } from '../middlewares';
+import { createTopicSchema, updateTopicSchema } from '../schema';
 
 const topicRouter = express.Router();
 
@@ -10,9 +11,19 @@ topicRouter.get('/', authMiddleware, topicController.getTopics);
 // Get topic detail
 topicRouter.get('/:id', authMiddleware, topicController.getTopic);
 // Create new topic
-topicRouter.post('/', authMiddleware, topicController.createTopic);
+topicRouter.post(
+  '/',
+  authMiddleware,
+  validateMiddleware(createTopicSchema),
+  topicController.createTopic
+);
 // Update topic
-topicRouter.put('/:id', authMiddleware, topicController.updateTopic);
+topicRouter.put(
+  '/:id',
+  authMiddleware,
+  validateMiddleware(updateTopicSchema),
+  topicController.updateTopic
+);
 // Delete topic
 topicRouter.delete('/:id', authMiddleware, topicController.deleteTopic);
 // Delete topics
