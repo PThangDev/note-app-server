@@ -1,7 +1,8 @@
 import express from 'express';
 
 import { noteController } from '../controllers';
-import { authMiddleware } from '../middlewares';
+import { authMiddleware, validateMiddleware } from '../middlewares';
+import { createNoteSchema, deleteManyNoteSchema, updateNoteSchema } from '../schema';
 
 const noteRouter = express.Router();
 // Get notes
@@ -9,14 +10,34 @@ noteRouter.get('/', authMiddleware, noteController.getNotes);
 // Get note by id
 noteRouter.get('/:id', authMiddleware, noteController.getNoteDetail);
 // Create a new note
-noteRouter.post('/', authMiddleware, noteController.createNote);
+noteRouter.post(
+  '/',
+  authMiddleware,
+  validateMiddleware(createNoteSchema),
+  noteController.createNote
+);
 // Move many notes to trash
-noteRouter.put('/trash', authMiddleware, noteController.moveNotesToTrash);
+noteRouter.put(
+  '/trash',
+  authMiddleware,
+  validateMiddleware(deleteManyNoteSchema),
+  noteController.moveNotesToTrash
+);
 // Update note
-noteRouter.put('/:id', authMiddleware, noteController.updateNote);
+noteRouter.put(
+  '/:id',
+  authMiddleware,
+  validateMiddleware(updateNoteSchema),
+  noteController.updateNote
+);
 // Delete note
 noteRouter.delete('/:id', authMiddleware, noteController.deleteNote);
 // Delete many notes
-noteRouter.delete('/', authMiddleware, noteController.deleteNotes);
+noteRouter.delete(
+  '/',
+  authMiddleware,
+  validateMiddleware(deleteManyNoteSchema),
+  noteController.deleteNotes
+);
 
 export default noteRouter;

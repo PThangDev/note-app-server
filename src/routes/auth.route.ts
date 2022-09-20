@@ -1,13 +1,14 @@
 import express from 'express';
+
 import { authController } from '../controllers';
+import { authMiddleware, validateMiddleware } from '../middlewares';
 import {
   activeAccountSchema,
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
-} from '../dto';
-import { authMiddleware, validateMiddleware } from '../middlewares';
+} from '../schema';
 
 const authRouter = express.Router();
 
@@ -30,7 +31,6 @@ authRouter.put(
   validateMiddleware(changePasswordSchema),
   authController.changePassword
 );
-
 authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
 
 export default authRouter;
