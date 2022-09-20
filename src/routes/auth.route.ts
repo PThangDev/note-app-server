@@ -1,11 +1,11 @@
 import express from 'express';
 import { authController } from '../controllers';
-import { loginSchema } from '../dto';
+import { loginSchema, registerSchema } from '../dto';
 import { authMiddleware, validateMiddleware } from '../middlewares';
 
 const authRouter = express.Router();
 
-authRouter.post('/register', authController.register);
+authRouter.post('/register', validateMiddleware(registerSchema), authController.register);
 authRouter.post('/login', validateMiddleware(loginSchema), authController.login);
 authRouter.post('/forgot-password', authController.forgotPassword);
 
