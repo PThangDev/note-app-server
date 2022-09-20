@@ -11,6 +11,7 @@ export const createNoteSchema = yup.object({
       .string()
       .required('Content is required')
       .max(3000, 'Content must be at most 3000 characters'),
+    background: yup.string().nullable(),
     topics: yup.array(yup.string()).nullable(),
   }),
 });
