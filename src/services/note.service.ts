@@ -69,25 +69,21 @@ export const createNote = async (req: RequestAuth) => {
 
   const { background, content, thumbnail, title, topics: topicIds } = req.body;
 
-  const topics = await TopicModel.find({ user: user._id, _id: topicIds });
-
-  const _topicIds = topics.map((topic) => topic._id);
-
   const newNote = new NoteModel({
     title,
     content,
     thumbnail,
     background,
-    topics: _topicIds,
+    topics: topicIds,
     user: user._id,
     slug: createSlug(title),
   });
 
   await newNote.save();
 
-  if (_topicIds.length) {
+  if (topicIds.length) {
     await TopicModel.updateMany(
-      { user: user._id, _id: _topicIds },
+      { user: user._id, _id: topicIds },
       { $push: { notes: newNote._id } }
     );
   }

@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { noteController } from '../controllers';
-import { authMiddleware, validateMiddleware } from '../middlewares';
+import { authMiddleware, validateMiddleware, validTopicsMiddleware } from '../middlewares';
 import { createNoteSchema, deleteManyNoteSchema, updateNoteSchema } from '../schema';
 
 const noteRouter = express.Router();
@@ -14,6 +14,7 @@ noteRouter.post(
   '/',
   authMiddleware,
   validateMiddleware(createNoteSchema),
+  validTopicsMiddleware,
   noteController.createNote
 );
 // Move many notes to trash
