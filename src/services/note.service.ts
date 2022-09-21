@@ -129,7 +129,7 @@ export const updateNote = async (req: RequestAuth) => {
 
   if (topicIds) {
     await TopicModel.updateMany(
-      { user: user?._id, notes: noteUpdated._id },
+      { user: user?._id, notes: { $in: noteUpdated._id } },
       { $pull: { notes: noteUpdated._id } }
     );
     await TopicModel.updateMany(

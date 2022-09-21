@@ -1,19 +1,58 @@
 import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
+import FilterDocumentAPI from '../helpers/FilterDocumentAPI';
 import { TopicModel } from '../models';
-import { RequestAuth, TopicUpdate } from '../types';
+import { Pagination, RequestAuth, TopicUpdate } from '../types';
 
 // Get topics
 export const getTopics = async (req: RequestAuth) => {
-  const { note_limit, note_page } = req.query;
+  const { q: search, note_limit, note_page } = req.query;
+  const noteLimit = Number(note_limit) || 8;
 
-  const topics = await TopicModel.find({ user: req?.user?._id }).populate({
-    path: 'user',
-    select: '-password',
+  const user = req?.user;
+
+  const filter: { [key: string]: any } = {
+    ...req.query,
+    user: user?._id,
+  };
+  if (search) {
+    filter['$text'] = { $search: search };
+  }
+
+  const topicsFiltered = new FilterDocumentAPI(
+    TopicModel.find(filter)
+      .populate({ path: 'user', select: '-password' })
+      .populate({
+        path: 'notes',
+        match: { is_trash: false, is_pin: false },
+        options: { limit: noteLimit },
+        populate: { path: 'topics' },
+      }),
+    filter
+  )
+    .search()
+    .filter()
+    .pagination()
+    .sortable();
+  const count = new FilterDocumentAPI(TopicModel.find(filter), filter).search().filter().count();
+
+  const [topics, totalItems] = await Promise.all([topicsFiltered.query, count.query]);
+
+  const pageCount = Math.ceil(totalItems / topicsFiltered.limit);
+
+  const pagination: Pagination = {
+    limit: topicsFiltered.limit,
+    total: totalItems,
+    page_size: topics.length,
+    page_count: pageCount,
+  };
+
+  return createResponseSuccess({
+    data: topics,
+    message: 'Get topics successfully',
+    meta: { pagination },
   });
-
-  return createResponseSuccess({ data: topics, message: 'Get topics successfully' });
 };
 // Get topic detail
 export const getTopic = async (req: RequestAuth) => {
