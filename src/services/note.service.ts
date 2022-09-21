@@ -81,7 +81,7 @@ export const createNote = async (req: RequestAuth) => {
 
   await newNote.save();
 
-  if (topicIds.length) {
+  if (topicIds?.length) {
     await TopicModel.updateMany(
       { user: user._id, _id: topicIds },
       { $push: { notes: newNote._id } }
