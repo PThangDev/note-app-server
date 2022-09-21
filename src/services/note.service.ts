@@ -81,7 +81,7 @@ export const createNote = async (req: RequestAuth) => {
 
   await newNote.save();
 
-  if (topicIds.length) {
+  if (topicIds?.length) {
     await TopicModel.updateMany(
       { user: user._id, _id: topicIds },
       { $push: { notes: newNote._id } }
@@ -149,6 +149,8 @@ export const deleteNote = async (req: RequestAuth) => {
 
   if (!noteDeleted) throw createHttpError(404, 'Note does not exist');
 
+  await TopicModel.updateMany({ user: user._id, notes: id }, { $pull: { notes: id } });
+
   return createResponseSuccess({ data: noteDeleted, message: 'Delete note successfully' });
 };
 // Delete many notes
@@ -163,6 +165,11 @@ export const deleteNotes = async (req: RequestAuth) => {
 
   if (!notesDeleted || notesDeleted.deletedCount === 0)
     throw createHttpError(400, 'Delete failed. Invalid notes');
+
+  await TopicModel.updateMany(
+    { user: user._id, notes: { $in: noteIds } },
+    { $pullAll: { notes: noteIds } }
+  );
 
   return createResponseSuccess({ data: notesDeleted, message: 'Delete many notes successfully' });
 };

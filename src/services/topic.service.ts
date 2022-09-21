@@ -2,7 +2,7 @@ import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
 import FilterDocumentAPI from '../helpers/FilterDocumentAPI';
-import { TopicModel } from '../models';
+import { NoteModel, TopicModel } from '../models';
 import { Pagination, RequestAuth, TopicUpdate } from '../types';
 
 // Get topics
@@ -129,6 +129,8 @@ export const deleteTopic = async (req: RequestAuth) => {
 
   const topicDeleted = await TopicModel.findOneAndDelete({ _id: id, user: user?._id });
 
+  await NoteModel.updateMany({ user: user?._id, topics: id }, { $pull: { topics: id } });
+
   return createResponseSuccess({ data: topicDeleted, message: 'Delete note successfully' });
 };
 // Delete many topics
@@ -137,6 +139,11 @@ export const deleteTopics = async (req: RequestAuth) => {
   const { topicIds } = req.body;
 
   const topicsDeleted = await TopicModel.deleteMany({ _id: topicIds, user: user?._id });
+
+  await NoteModel.updateMany(
+    { user: user?._id, topics: { $in: topicIds } },
+    { $pullAll: { topics: topicIds } }
+  );
 
   return createResponseSuccess({ data: topicsDeleted, message: 'Delete many notes successfully' });
 };

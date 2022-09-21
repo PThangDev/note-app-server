@@ -1,12 +1,25 @@
 import express from 'express';
 
 import { noteController } from '../controllers';
-import { authMiddleware, validateMiddleware, validTopicsMiddleware } from '../middlewares';
+import {
+  authMiddleware,
+  notesPinnedMiddleware,
+  notesTrashMiddleware,
+  otherNotesMiddleware,
+  validateMiddleware,
+  validTopicsMiddleware,
+} from '../middlewares';
 import { createNoteSchema, deleteManyNoteSchema, updateNoteSchema } from '../schema';
 
 const noteRouter = express.Router();
 // Get notes
 noteRouter.get('/', authMiddleware, noteController.getNotes);
+// Get notes pinned
+noteRouter.get('/pins', authMiddleware, notesPinnedMiddleware, noteController.getNotes);
+// Get notes in trash
+noteRouter.get('/trashs', authMiddleware, notesTrashMiddleware, noteController.getNotes);
+// Get other notes
+noteRouter.get('/others', authMiddleware, otherNotesMiddleware, noteController.getNotes);
 // Get note by id
 noteRouter.get('/:id', authMiddleware, noteController.getNoteDetail);
 // Create a new note
@@ -19,7 +32,7 @@ noteRouter.post(
 );
 // Move many notes to trash
 noteRouter.put(
-  '/trash',
+  '/trashs',
   authMiddleware,
   validateMiddleware(deleteManyNoteSchema),
   noteController.moveNotesToTrash
