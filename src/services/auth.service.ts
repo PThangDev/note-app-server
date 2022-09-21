@@ -12,6 +12,7 @@ import { AuthModel } from '../models';
 import {
   DecodedToken,
   NewUser,
+  StatusUser,
   Token,
   User,
   UserChangePassword,
@@ -97,7 +98,7 @@ export const login = async (data: UserLogin) => {
   if (!user) throw createHttpError(400, 'Username or Email does not exists');
   if (user.status === 'pending')
     throw createHttpError(400, 'Account has not actived. Please check your email');
-  if (user.status === 'banned') throw createHttpError(400, 'Account has banned');
+  if (user.status === 'banned') throw createHttpError(400, 'Your account has been banned');
 
   // Compare password
   const isMatchPassword = await bcrypt.compare(password, user.password);
@@ -161,4 +162,19 @@ export const getInfoUser = async (user: User) => {
   const _user = { ...user, password: '' };
 
   return createResponseSuccess({ data: _user, message: 'Get info user successfully' });
+};
+// Ban account
+export const banAccount = async (user: User, accountId: string) => {
+  const accountBanned = await AuthModel.findByIdAndUpdate(
+    accountId,
+    { status: StatusUser.banned },
+    { new: true }
+  ).select('-password');
+
+  if (!accountBanned) throw createHttpError(400, `Account has id: ${accountId} does not exist`);
+
+  return createResponseSuccess({
+    data: accountBanned,
+    message: `Ban account has id :"${accountId}" successfully`,
+  });
 };

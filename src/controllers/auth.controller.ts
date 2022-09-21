@@ -75,3 +75,16 @@ export const getInfoUser = async (req: RequestAuth, res: Response, next: NextFun
     next(error);
   }
 };
+// [POST] /auth/ban-account
+export const banAccount = async (req: RequestAuth, res: Response, next: NextFunction) => {
+  try {
+    const user = req?.user as User;
+    const { accountId } = req.body;
+
+    const response = await authService.banAccount(user, accountId);
+
+    return res.status(response.status).json(response);
+  } catch (error) {
+    next(error);
+  }
+};

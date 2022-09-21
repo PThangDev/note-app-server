@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { authController } from '../controllers';
-import { authMiddleware, validateMiddleware } from '../middlewares';
+import { adminMiddleware, authMiddleware, validateMiddleware } from '../middlewares';
 import {
   activeAccountSchema,
   changePasswordSchema,
@@ -32,5 +32,8 @@ authRouter.put(
   authController.changePassword
 );
 authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
+
+// Admin
+authRouter.post('/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
 
 export default authRouter;
