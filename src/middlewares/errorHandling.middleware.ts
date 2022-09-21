@@ -18,9 +18,12 @@ const errorHandlingMiddleware: ErrorRequestHandler = (err, req, res, next) => {
   }
 
   if (err.path === '_id') {
-    return res
-      .status(status)
-      .json({ status, success: false, message: 'Invalid Id. Please try again', data: err });
+    return res.status(status).json({
+      status,
+      success: false,
+      message: `Id "${err.value}" is Invalid. Please try again`,
+      data: err,
+    });
   }
 
   if (err.message === 'jwt expired') {
