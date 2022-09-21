@@ -98,14 +98,14 @@ export const createNote = async (req: RequestAuth) => {
 export const updateNote = async (req: RequestAuth) => {
   const { id } = req.params;
   const user = req.user as User;
-  const { title, content, thumbnail, background, topics, is_pin, is_trash } = req.body;
+  const { title, content, thumbnail, background, topics: topicIds, is_pin, is_trash } = req.body;
 
   const dataUpdate: NoteUpdate = {
     title,
     content,
     thumbnail,
     background,
-    topics,
+    topics: topicIds,
     is_pin,
     is_trash,
     slug: '',
@@ -126,6 +126,17 @@ export const updateNote = async (req: RequestAuth) => {
   });
 
   if (!noteUpdated) throw createHttpError(400, 'Update note failed. Account or note id is invalid');
+
+  if (topicIds) {
+    await TopicModel.updateMany(
+      { user: user?._id, notes: noteUpdated._id },
+      { $pull: { notes: noteUpdated._id } }
+    );
+    await TopicModel.updateMany(
+      { user: user?._id, _id: topicIds },
+      { $push: { notes: noteUpdated._id } }
+    );
+  }
 
   return createResponseSuccess({ data: noteUpdated, message: 'Update note successfully' });
 };

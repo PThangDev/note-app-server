@@ -29,6 +29,7 @@ noteRouter.put(
   '/:id',
   authMiddleware,
   validateMiddleware(updateNoteSchema),
+  validTopicsMiddleware,
   noteController.updateNote
 );
 // Delete note
