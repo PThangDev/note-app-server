@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 
 import { AuthModel } from '../models';
-import { DecodedToken, RequestAuth } from '../types';
+import { DecodedToken, RequestAuth, StatusUser } from '../types';
 
 const authMiddleware = async (req: RequestAuth, res: Response, next: NextFunction) => {
   try {
@@ -20,6 +20,9 @@ const authMiddleware = async (req: RequestAuth, res: Response, next: NextFunctio
     const user = await AuthModel.findOne({ _id: decodedToken._id });
 
     if (!user) throw createHttpError(401, 'User does not exists');
+
+    if (user.status === StatusUser.banned)
+      throw createHttpError(401, 'Your account has been banned!');
 
     req.user = user._doc;
 
