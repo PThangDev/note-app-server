@@ -2,7 +2,7 @@ import createHttpError from 'http-errors';
 
 import { createResponseSuccess, createSlug } from '../helpers';
 import FilterDocumentAPI from '../helpers/FilterDocumentAPI';
-import { NoteModel } from '../models';
+import { NoteModel, TopicModel } from '../models';
 import { MetaPagination, Note, NoteUpdate, Pagination, RequestAuth, User } from '../types';
 
 // Get notes
@@ -67,19 +67,30 @@ export const getNoteDetail = async (req: RequestAuth) => {
 export const createNote = async (req: RequestAuth) => {
   const user = req.user as User;
 
-  const { background, content, thumbnail, title, topics } = req.body;
+  const { background, content, thumbnail, title, topics: topicIds } = req.body;
+
+  const topics = await TopicModel.find({ user: user._id, _id: topicIds });
+
+  const _topicIds = topics.map((topic) => topic._id);
 
   const newNote = new NoteModel({
     title,
     content,
     thumbnail,
     background,
-    topics: topics || null,
+    topics: _topicIds,
     user: user._id,
     slug: createSlug(title),
   });
 
   await newNote.save();
+
+  if (_topicIds.length) {
+    await TopicModel.updateMany(
+      { user: user._id, _id: _topicIds },
+      { $push: { notes: newNote._id } }
+    );
+  }
 
   return createResponseSuccess({
     status: 201,
