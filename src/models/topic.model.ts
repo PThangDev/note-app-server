@@ -27,4 +27,6 @@ const topicSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+topicSchema.index({ name: 'text' }, { default_language: 'none' });
+
 export default mongoose.model<TopicDocument>('topic', topicSchema);
