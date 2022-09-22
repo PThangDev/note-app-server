@@ -75,7 +75,7 @@ export const getInfoUser = async (req: RequestAuth, res: Response, next: NextFun
     next(error);
   }
 };
-// [POST] /auth/ban-account
+// [POST]:admin /auth/ban-account
 export const banAccount = async (req: RequestAuth, res: Response, next: NextFunction) => {
   try {
     const user = req?.user as User;
