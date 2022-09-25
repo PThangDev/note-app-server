@@ -75,6 +75,10 @@ export const createTopic = async (req: RequestAuth) => {
   const { user } = req;
   const { name, background } = req.body;
 
+  const topic = await TopicModel.findOne({ user: user?._id, name });
+
+  if (topic) throw createHttpError(400, 'Topic has already exist');
+
   const newTopic = new TopicModel({
     name,
     background,
@@ -95,6 +99,10 @@ export const updateTopic = async (req: RequestAuth) => {
   const { user } = req;
   const { id } = req.params;
   const { name, background, notes } = req.body;
+
+  const topic = await TopicModel.findOne({ user: user?._id, name });
+
+  if (topic) throw createHttpError(400, 'Topic has already exist');
 
   const dataUpdate: TopicUpdate & { slug?: string } = {
     name,
