@@ -54,11 +54,12 @@ export const getNoteDetail = async (req: RequestAuth) => {
   const user = req.user as User;
   const { id } = req.params;
 
-  const note = await NoteModel.findOne({ user: user._id, _id: id }).populate({
-    path: 'user',
-    select: '-password',
-  });
-
+  const note = await NoteModel.findOne({ user: user._id, _id: id })
+    .populate({
+      path: 'user',
+      select: '-password',
+    })
+    .populate({ path: 'topics' });
   if (!note) throw createHttpError(404, 'Note does note exist');
 
   return createResponseSuccess({ data: note, message: 'Get note detail by id successfully' });
