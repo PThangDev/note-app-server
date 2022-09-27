@@ -26,7 +26,7 @@ export const getTopics = async (req: RequestAuth) => {
       .populate({
         path: 'notes',
         match: { is_trash: false, is_pin: false },
-        options: { limit: noteLimit },
+        options: { limit: noteLimit, sort: '-createdAt' },
         populate: { path: 'topics' },
       }),
     filter
@@ -100,7 +100,7 @@ export const updateTopic = async (req: RequestAuth) => {
   const { id } = req.params;
   const { name, background, notes } = req.body;
 
-  const topic = await TopicModel.findOne({ user: user?._id, name });
+  const topic = await TopicModel.findOne({ user: user?._id, _id: { $ne: id }, name });
 
   if (topic) throw createHttpError(400, 'Topic has already exist');
 

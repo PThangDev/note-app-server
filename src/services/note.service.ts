@@ -105,7 +105,7 @@ export const updateNote = async (req: RequestAuth) => {
   const user = req.user as User;
   const { title, content, thumbnail, background, topics: topicIds, is_pin, is_trash } = req.body;
 
-  const note = await NoteModel.findOne({ user: user?._id, title });
+  const note = await NoteModel.findOne({ user: user?._id, _id: { $ne: id }, title });
 
   if (note) throw createHttpError(400, 'Note title has already exist');
 
