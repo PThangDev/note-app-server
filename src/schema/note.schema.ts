@@ -6,7 +6,7 @@ export const createNoteSchema = yup.object({
       .string()
       .required('Title is required')
       .min(4, 'Title must have at least 4 characters')
-      .max(50, 'Title must be at most 50 characters'),
+      .max(200, 'Title must be at most 200 characters'),
     content: yup
       .string()
       .required('Content is required')
@@ -21,7 +21,7 @@ export const updateNoteSchema = yup.object({
     title: yup
       .string()
       .min(4, 'Title must have at least 4 characters')
-      .max(50, 'Title must be at most 50 characters')
+      .max(200, 'Title must be at most 200 characters')
       .nullable(),
     content: yup.string().max(20000, 'Content must be at most 20000 characters').nullable(),
     background: yup.string().nullable(),
