@@ -1,3 +1,3 @@
-export * from './authSchema';
-export * from './noteSchema';
-export * from './topicSchema';
+export * from './auth.schema';
+export * from './note.schema';
+export * from './topic.schema';
