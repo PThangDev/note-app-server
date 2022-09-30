@@ -73,7 +73,7 @@ export const getTopic = async (req: RequestAuth) => {
 // Create new topic
 export const createTopic = async (req: RequestAuth) => {
   const { user } = req;
-  const { name, background } = req.body;
+  const { name, description, background } = req.body;
 
   const topic = await TopicModel.findOne({ user: user?._id, name });
 
@@ -81,6 +81,7 @@ export const createTopic = async (req: RequestAuth) => {
 
   const newTopic = new TopicModel({
     name,
+    description,
     background,
     user: user?._id,
     slug: createSlug(name),
@@ -98,7 +99,7 @@ export const createTopic = async (req: RequestAuth) => {
 export const updateTopic = async (req: RequestAuth) => {
   const { user } = req;
   const { id } = req.params;
-  const { name, background, notes } = req.body;
+  const { name, description, background, notes } = req.body;
 
   const topic = await TopicModel.findOne({ user: user?._id, _id: { $ne: id }, name });
 
@@ -106,6 +107,7 @@ export const updateTopic = async (req: RequestAuth) => {
 
   const dataUpdate: TopicUpdate & { slug?: string } = {
     name,
+    description,
     background,
     notes,
   };
