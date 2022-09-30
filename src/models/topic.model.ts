@@ -9,14 +9,18 @@ const topicSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+    },
+    background: {
+      type: String,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'user',
       unique: false,
-    },
-    background: {
-      type: String,
     },
     notes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'note' }],
     slug: {
