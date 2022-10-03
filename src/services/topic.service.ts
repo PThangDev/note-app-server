@@ -125,7 +125,9 @@ export const updateTopic = async (req: RequestAuth) => {
 
   const topicUpdated = await TopicModel.findOneAndUpdate({ _id: id, user: user?._id }, dataUpdate, {
     new: true,
-  });
+  })
+    .populate({ path: 'user', select: '-password' })
+    .populate({ path: 'notes' });
 
   if (!topicUpdated)
     throw createHttpError(400, 'Update note failed. Invalid id or wrong data update');

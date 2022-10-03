@@ -59,7 +59,7 @@ export const getNoteDetail = async (req: RequestAuth) => {
       path: 'user',
       select: '-password',
     })
-    .populate({ path: 'topics' });
+    .populate({ path: 'topics', populate: { path: 'notes' } });
   if (!note) throw createHttpError(404, 'Note does note exist');
 
   return createResponseSuccess({ data: note, message: 'Get note detail by id successfully' });
@@ -132,7 +132,9 @@ export const updateNote = async (req: RequestAuth) => {
 
   const noteUpdated = await NoteModel.findOneAndUpdate({ _id: id, user: user._id }, dataUpdate, {
     new: true,
-  });
+  })
+    .populate({ path: 'user', select: '-password' })
+    .populate({ path: 'topics', populate: { path: 'notes' } });
 
   if (!noteUpdated) throw createHttpError(400, 'Update note failed. Account or note id is invalid');
 
