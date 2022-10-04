@@ -8,7 +8,7 @@ import {
   generateActiveToken,
   generateRefreshToken,
 } from '../helpers/generateToken';
-import { AuthModel } from '../models';
+import { AuthModel, NoteModel, TopicModel } from '../models';
 import {
   DecodedToken,
   NewUser,
@@ -161,7 +161,15 @@ export const forgotPassword = async (email: string) => {
 export const getInfoUser = async (user: User) => {
   const _user = { ...user, password: '' };
 
-  return createResponseSuccess({ data: _user, message: 'Get info user successfully' });
+  const totalTopicsPromise = TopicModel.countDocuments({ user: user._id });
+  const totalNotesPromise = NoteModel.countDocuments({ user: user._id });
+
+  const [totalTopics, totalNotes] = await Promise.all([totalTopicsPromise, totalNotesPromise]);
+
+  return createResponseSuccess({
+    data: { ..._user, total_topics: totalTopics, total_notes: totalNotes },
+    message: 'Get info user successfully',
+  });
 };
 // Ban account
 export const banAccount = async (user: User, accountId: string) => {
