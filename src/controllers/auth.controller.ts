@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import createHttpError from 'http-errors';
 
 import { authService } from '../services';
 import { RequestAuth, User } from '../types';
@@ -16,10 +15,23 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     next(error);
   }
 };
+
+// [POST] /auth/google-login
+export const loginByGoogle = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { tokenId } = req.body;
+
+    const response = await authService.loginByGoogle(tokenId);
+
+    return res.status(response.status).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
 // [POST] /auth/register
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await authService.register(req.body);
+    const response = await authService.register(req.body, { sendEmail: true });
 
     return res.status(response.status).json(response);
   } catch (error) {

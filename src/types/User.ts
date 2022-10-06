@@ -33,7 +33,7 @@ export interface UserDocument extends User, Document {
 }
 
 export type NewUser = Pick<User, 'username' | 'email' | 'password'> &
-  Partial<Pick<User, 'fullname' | 'avatar' | 'type'>>;
+  Partial<Pick<User, 'fullname' | 'avatar' | 'type' | 'status'>>;
 
 export type UserLogin = Pick<User, 'password'> & {
   account: string;

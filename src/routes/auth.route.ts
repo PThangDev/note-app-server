@@ -14,6 +14,7 @@ const authRouter = express.Router();
 
 authRouter.post('/register', validateMiddleware(registerSchema), authController.register);
 authRouter.post('/login', validateMiddleware(loginSchema), authController.login);
+authRouter.post('/google-login', authController.loginByGoogle);
 authRouter.post(
   '/forgot-password',
   validateMiddleware(forgotPasswordSchema),
