@@ -34,6 +34,7 @@ authRouter.put(
 authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
 
 // Admin
-authRouter.post('/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
+authRouter.post('/admin/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
+authRouter.get('/admin/accounts', authMiddleware, adminMiddleware, authController.getAccounts);
 
 export default authRouter;

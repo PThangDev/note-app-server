@@ -7,18 +7,15 @@ import { Pagination, RequestAuth, TopicUpdate } from '../types';
 
 // Get topics
 export const getTopics = async (req: RequestAuth) => {
-  const { q: search, note_limit, note_page } = req.query;
+  const { note_limit, note_page } = req.query;
   const noteLimit = Number(note_limit) || 8;
 
   const user = req?.user;
 
-  const filter: { [key: string]: any } = {
+  const filter = {
     ...req.query,
     user: user?._id,
   };
-  if (search) {
-    filter['$text'] = { $search: search };
-  }
 
   const topicsFiltered = new FilterDocumentAPI(
     TopicModel.find(filter)

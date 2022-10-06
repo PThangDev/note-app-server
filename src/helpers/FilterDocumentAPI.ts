@@ -21,7 +21,7 @@ class FilterDocumentAPI {
     return this;
   }
   search() {
-    const { search } = this.queryString;
+    const { q: search } = this.queryString;
     if (search) {
       this.query = this.query.find({
         $text: { $search: search },

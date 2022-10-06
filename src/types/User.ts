@@ -18,6 +18,7 @@ export enum StatusUser {
 
 export interface User {
   _id: string;
+  fullname: string;
   username: string;
   password: string;
   email: string;
@@ -31,16 +32,12 @@ export interface UserDocument extends User, Document {
   _doc: User;
 }
 
-export interface NewUser {
-  username: string;
-  email: string;
-  password: string;
-}
+export type NewUser = Pick<User, 'username' | 'email' | 'password'> &
+  Partial<Pick<User, 'fullname' | 'avatar' | 'type'>>;
 
-export interface UserLogin {
+export type UserLogin = Pick<User, 'password'> & {
   account: string;
-  password: string;
-}
+};
 
 export interface UserChangePassword {
   oldPassword: string;

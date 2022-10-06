@@ -171,6 +171,11 @@ export const getInfoUser = async (user: User) => {
     message: 'Get info user successfully',
   });
 };
+export const getAccounts = async () => {
+  const accounts = await AuthModel.find();
+
+  return createResponseSuccess({ data: accounts, message: 'Get accounts successfully' });
+};
 // Ban account
 export const banAccount = async (user: User, accountId: string) => {
   const accountBanned = await AuthModel.findByIdAndUpdate(
