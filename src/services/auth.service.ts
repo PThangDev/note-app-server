@@ -174,9 +174,11 @@ export const loginByGoogle = async (tokenId: string) => {
   }
   // If has not found email, register new account
   else {
+    const [username] = email.split('@');
+
     const response = await register({
       fullname: name,
-      username: email,
+      username,
       avatar: picture,
       email,
       password: `${email}-${at_hash}`,
