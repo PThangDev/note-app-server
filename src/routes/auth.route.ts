@@ -14,6 +14,7 @@ const authRouter = express.Router();
 
 authRouter.post('/register', validateMiddleware(registerSchema), authController.register);
 authRouter.post('/login', validateMiddleware(loginSchema), authController.login);
+authRouter.post('/google-login', authController.loginByGoogle);
 authRouter.post(
   '/forgot-password',
   validateMiddleware(forgotPasswordSchema),
@@ -34,6 +35,7 @@ authRouter.put(
 authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
 
 // Admin
-authRouter.post('/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
+authRouter.post('/admin/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
+authRouter.get('/admin/accounts', authMiddleware, adminMiddleware, authController.getAccounts);
 
 export default authRouter;

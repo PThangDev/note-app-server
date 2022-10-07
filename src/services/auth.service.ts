@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 
@@ -11,9 +12,11 @@ import {
 import { AuthModel, NoteModel, TopicModel } from '../models';
 import {
   DecodedToken,
+  Meta,
   NewUser,
   StatusUser,
   Token,
+  TypeLogin,
   User,
   UserChangePassword,
   UserDocument,
@@ -23,8 +26,18 @@ import {
 const CLIENT_URL = process.env.CLIENT_URL;
 
 // Register
-export const register = async (body: NewUser) => {
-  const { username, email, password } = body;
+export const register = async (body: NewUser, config?: { sendEmail: boolean }) => {
+  const {
+    username,
+    email,
+    password,
+    fullname = '',
+    avatar,
+    status = StatusUser.pending,
+    type = TypeLogin.register,
+  } = body;
+
+  let meta: Token;
 
   const userLoginByUsername = await AuthModel.findOne({ username });
 
@@ -37,30 +50,42 @@ export const register = async (body: NewUser) => {
   const passwordHash = await bcrypt.hash(password, 12);
 
   const newUser = new AuthModel({
+    fullname,
     username,
-    password: passwordHash,
     email,
+    avatar,
+    type,
+    status,
+    password: passwordHash,
     slug: createSlug(username),
   });
 
   await newUser.save();
 
-  const active_token = generateActiveToken({
-    _id: newUser._id,
-  });
+  if (config?.sendEmail) {
+    const active_token = generateActiveToken({
+      _id: newUser._id,
+    });
 
-  const url = `${CLIENT_URL}/auth/active/${active_token}`;
+    const url = `${CLIENT_URL}/auth/active/${active_token}`;
 
-  await sendEmail(email, url, 'Verify your email address');
+    meta = {
+      active_token,
+    };
 
-  return createResponseSuccess<User, Token & { url: string }>({
+    await sendEmail(email, url, 'Verify your email address');
+  } else {
+    const access_token = generateAccessToken({ _id: newUser._id });
+    meta = {
+      access_token,
+    };
+  }
+
+  return createResponseSuccess<User, Token>({
     status: 201,
     data: { ...newUser._doc, password: '' } as User,
-    message: '',
-    meta: {
-      active_token,
-      url,
-    },
+    message: 'Register successfully. Please check your email to verify account',
+    meta,
   });
 };
 
@@ -118,6 +143,55 @@ export const login = async (data: UserLogin) => {
   });
 };
 
+// Login by google
+export const loginByGoogle = async (tokenId: string) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID || '';
+  const client = new OAuth2Client(clientId);
+
+  const verifyToken = await client.verifyIdToken({ idToken: tokenId, audience: clientId });
+
+  const googlePayload = verifyToken.getPayload();
+
+  if (!googlePayload) throw createHttpError(400, 'Get payload verify token google auth failed');
+
+  const { name = '', email = '', picture = '', at_hash = '' } = googlePayload;
+
+  const user = await AuthModel.findOne({ email });
+
+  // If found user
+  if (user) {
+    const access_token = generateAccessToken({ _id: user._id });
+    const refresh_token = generateRefreshToken({ _id: user._id });
+
+    return createResponseSuccess<User, Token>({
+      data: { ...user._doc, password: '' } as User,
+      message: 'Login by google successfully!',
+      meta: {
+        access_token,
+        refresh_token,
+      },
+    });
+  }
+  // If has not found email, register new account
+  else {
+    const response = await register({
+      fullname: name,
+      username: email,
+      avatar: picture,
+      email,
+      password: `${email}-${at_hash}`,
+      status: StatusUser.active,
+      type: TypeLogin.google,
+    });
+
+    return createResponseSuccess({
+      data: response.data,
+      message: 'Login by google successfully',
+      meta: response.meta,
+    });
+  }
+};
+
 // Change password
 export const changePassword = async (data: UserChangePassword) => {
   const { oldPassword, newPassword, user } = data;
@@ -170,6 +244,11 @@ export const getInfoUser = async (user: User) => {
     data: { ..._user, total_topics: totalTopics, total_notes: totalNotes },
     message: 'Get info user successfully',
   });
+};
+export const getAccounts = async () => {
+  const accounts = await AuthModel.find();
+
+  return createResponseSuccess({ data: accounts, message: 'Get accounts successfully' });
 };
 // Ban account
 export const banAccount = async (user: User, accountId: string) => {

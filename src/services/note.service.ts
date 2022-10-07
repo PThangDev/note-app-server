@@ -8,16 +8,11 @@ import { MetaPagination, Note, NoteUpdate, Pagination, RequestAuth, User } from 
 // Get notes
 export const getNotes = async (req: RequestAuth) => {
   const user = req.user as User;
-  const { q: search } = req.query;
 
-  const filter: { [key: string]: any } = {
+  const filter = {
     ...req.query,
     user: user._id,
   };
-
-  if (search) {
-    filter['$text'] = { $search: search };
-  }
 
   const notesFiltered = new FilterDocumentAPI(
     NoteModel.find(filter)
