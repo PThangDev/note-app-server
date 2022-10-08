@@ -7,26 +7,26 @@ import { createTopicSchema, updateTopicSchema } from '../schema';
 const topicRouter = express.Router();
 
 // Get topics
-topicRouter.get('/', authMiddleware, topicController.getTopics);
+topicRouter.get('/', authMiddleware(), topicController.getTopics);
 // Get topic detail
-topicRouter.get('/:id', authMiddleware, topicController.getTopic);
+topicRouter.get('/:id', authMiddleware(), topicController.getTopic);
 // Create new topic
 topicRouter.post(
   '/',
-  authMiddleware,
+  authMiddleware(),
   validateMiddleware(createTopicSchema),
   topicController.createTopic
 );
 // Update topic
 topicRouter.put(
   '/:id',
-  authMiddleware,
+  authMiddleware(),
   validateMiddleware(updateTopicSchema),
   topicController.updateTopic
 );
 // Delete topic
-topicRouter.delete('/:id', authMiddleware, topicController.deleteTopic);
+topicRouter.delete('/:id', authMiddleware(), topicController.deleteTopic);
 // Delete topics
-topicRouter.delete('/', authMiddleware, topicController.deleteTopics);
+topicRouter.delete('/', authMiddleware(), topicController.deleteTopics);
 
 export default topicRouter;

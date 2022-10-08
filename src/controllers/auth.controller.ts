@@ -41,9 +41,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 // [PUT] /auth/active-account
 export const activeAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { active_token } = req.body;
+    const { activeToken } = req.body;
 
-    const response = await authService.activeAccount(active_token);
+    const response = await authService.activeAccount(activeToken);
 
     return res.status(response.status).json(response);
   } catch (error) {
@@ -63,6 +63,21 @@ export const changePassword = async (req: RequestAuth, res: Response, next: Next
     next(error);
   }
 };
+
+// [PUT] /auth/reset-password
+export const resetPassword = async (req: RequestAuth, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user as User;
+    const { newPassword } = req.body;
+
+    const response = await authService.resetPassword({ user, newPassword });
+
+    return res.status(response.status).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // [POST] /auth/forgot-password
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {

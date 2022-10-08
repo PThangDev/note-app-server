@@ -4,6 +4,7 @@ import { authController } from '../controllers';
 import { adminMiddleware, authMiddleware, validateMiddleware } from '../middlewares';
 import {
   activeAccountSchema,
+  resetPasswordSchema,
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
@@ -11,6 +12,7 @@ import {
 } from '../schema';
 
 const authRouter = express.Router();
+const RESET_PASSWORD_TOKEN_SECRET = process.env.RESET_PASSWORD_TOKEN_SECRET || '';
 
 authRouter.post('/register', validateMiddleware(registerSchema), authController.register);
 authRouter.post('/login', validateMiddleware(loginSchema), authController.login);
@@ -32,6 +34,14 @@ authRouter.put(
   validateMiddleware(changePasswordSchema),
   authController.changePassword
 );
+
+authRouter.put(
+  '/reset-password',
+  authMiddleware(RESET_PASSWORD_TOKEN_SECRET),
+  validateMiddleware(resetPasswordSchema),
+  authController.resetPassword
+);
+
 authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
 
 // Admin

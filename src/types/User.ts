@@ -45,6 +45,11 @@ export interface UserChangePassword {
   user: User;
 }
 
+export interface UserResetPassword {
+  newPassword: string;
+  user: User;
+}
+
 export interface RequestAuth extends Request {
   user?: User;
 }
