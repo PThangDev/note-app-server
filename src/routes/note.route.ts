@@ -3,9 +3,11 @@ import express from 'express';
 import { noteController } from '../controllers';
 import {
   authMiddleware,
+  moveNotesToTrashMiddleware,
   notesPinnedMiddleware,
-  notesTrashMiddleware,
+  noteTrashMiddleware,
   otherNotesMiddleware,
+  restoreNotesFromTrashMiddleware,
   validateMiddleware,
   validTopicsMiddleware,
 } from '../middlewares';
@@ -17,7 +19,7 @@ noteRouter.get('/', authMiddleware(), noteController.getNotes);
 // Get notes pinned
 noteRouter.get('/pins', authMiddleware(), notesPinnedMiddleware, noteController.getNotes);
 // Get notes in trash
-noteRouter.get('/trashs', authMiddleware(), notesTrashMiddleware, noteController.getNotes);
+noteRouter.get('/trashs', authMiddleware(), noteTrashMiddleware, noteController.getNotes);
 // Get other notes
 noteRouter.get('/others', authMiddleware(), otherNotesMiddleware, noteController.getNotes);
 // Get note by id
@@ -32,9 +34,18 @@ noteRouter.post(
 );
 // Move many notes to trash
 noteRouter.put(
-  '/trashs',
+  '/move-to-trash',
   authMiddleware(),
   validateMiddleware(deleteManyNoteSchema),
+  moveNotesToTrashMiddleware,
+  noteController.moveNotesToTrash
+);
+// Restore note from trash
+noteRouter.put(
+  '/restore-from-trash',
+  authMiddleware(),
+  validateMiddleware(deleteManyNoteSchema),
+  restoreNotesFromTrashMiddleware,
   noteController.moveNotesToTrash
 );
 // Update note

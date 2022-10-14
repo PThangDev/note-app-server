@@ -42,10 +42,10 @@ authRouter.put(
   authController.resetPassword
 );
 
-authRouter.get('/info-account', authMiddleware, authController.getInfoUser);
+authRouter.get('/info-account', authMiddleware(), authController.getInfoUser);
 
 // Admin
-authRouter.post('/admin/ban-account', authMiddleware, adminMiddleware, authController.banAccount);
-authRouter.get('/admin/accounts', authMiddleware, adminMiddleware, authController.getAccounts);
+authRouter.post('/admin/ban-account', authMiddleware(), adminMiddleware, authController.banAccount);
+authRouter.get('/admin/accounts', authMiddleware(), adminMiddleware, authController.getAccounts);
 
 export default authRouter;

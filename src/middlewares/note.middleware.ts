@@ -9,10 +9,30 @@ export const notesPinnedMiddleware = (req: Request, res: Response, next: NextFun
   next();
 };
 
-export const notesTrashMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const noteTrashMiddleware = (req: Request, res: Response, next: NextFunction) => {
   req.query = {
     ...req.query,
     is_trash: JSON.stringify(true),
+  };
+  next();
+};
+
+export const moveNotesToTrashMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  req.query = {
+    ...req.query,
+    is_trash: JSON.stringify(true),
+  };
+  next();
+};
+
+export const restoreNotesFromTrashMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  req.query = {
+    ...req.query,
+    is_trash: JSON.stringify(false),
   };
   next();
 };
