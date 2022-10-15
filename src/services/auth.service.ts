@@ -8,6 +8,7 @@ import {
   generateAccessToken,
   generateActiveToken,
   generateRefreshToken,
+  generateResetPasswordToken,
 } from '../helpers/generateToken';
 import { AuthModel, NoteModel, TopicModel } from '../models';
 import {
@@ -19,6 +20,7 @@ import {
   TypeLogin,
   User,
   UserChangePassword,
+  UserResetPassword,
   UserDocument,
   UserLogin,
 } from '../types';
@@ -72,8 +74,15 @@ export const register = async (body: NewUser, config?: { sendEmail: boolean }) =
     meta = {
       active_token,
     };
-
-    await sendEmail(email, url, 'Verify your email address');
+    // Send email to verify account
+    await sendEmail({
+      to: email,
+      username,
+      url,
+      description:
+        "Congratulations! You're almost set to start using Note App. Just click the button below to validate your email address.",
+      btnText: 'Verify your email address',
+    });
   } else {
     const access_token = generateAccessToken({ _id: newUser._id });
     meta = {
@@ -90,9 +99,9 @@ export const register = async (body: NewUser, config?: { sendEmail: boolean }) =
 };
 
 // Active Account
-export const activeAccount = async (active_token: string) => {
+export const activeAccount = async (activeToken: string) => {
   const decodedToken = jwt.verify(
-    active_token,
+    activeToken,
     `${process.env.ACTIVE_TOKEN_SECRET}`
   ) as DecodedToken;
 
@@ -174,9 +183,11 @@ export const loginByGoogle = async (tokenId: string) => {
   }
   // If has not found email, register new account
   else {
+    const [username] = email.split('@');
+
     const response = await register({
       fullname: name,
-      username: email,
+      username,
       avatar: picture,
       email,
       password: `${email}-${at_hash}`,
@@ -210,6 +221,19 @@ export const changePassword = async (data: UserChangePassword) => {
     message: 'Change password successfully!',
   });
 };
+// Reset Password
+export const resetPassword = async (data: UserResetPassword) => {
+  const { newPassword, user } = data;
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+  await AuthModel.findByIdAndUpdate(user._id, { password: newPasswordHash }, { new: true });
+
+  return createResponseSuccess({
+    data: null,
+    message: 'Change password successfully!',
+  });
+};
 
 // Forgot password
 export const forgotPassword = async (email: string) => {
@@ -220,10 +244,16 @@ export const forgotPassword = async (email: string) => {
   if (user.type !== 'register')
     throw createHttpError(400, `Quick login account with ${user.type} can't use this function.`);
 
-  const access_token = generateAccessToken({ _id: user._id });
-  const url = `${CLIENT_URL}/reset-password/${access_token}`;
+  const access_token = generateResetPasswordToken({ _id: user._id });
+  const url = `${CLIENT_URL}/auth/reset-password/${access_token}`;
 
-  await sendEmail(email, url, 'Forgot password?');
+  await sendEmail({
+    to: email,
+    btnText: 'Reset Password',
+    url,
+    description: 'Congratulations! Click the button below to validate your email address.',
+    username: user.username,
+  });
 
   return createResponseSuccess<null, Token>({
     data: null,

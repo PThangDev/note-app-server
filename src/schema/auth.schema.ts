@@ -62,8 +62,19 @@ export const changePasswordSchema = yup.object({
   }),
 });
 
+export const resetPasswordSchema = yup.object({
+  body: yup.object({
+    newPassword: yup
+      .string()
+      .required('Password is required')
+      .min(6, 'Password must have at least 6 characters')
+      .max(15, 'Username must be at most 15 characters')
+      .notOneOf([yup.ref('oldPassword')], 'New password is same as password'),
+  }),
+});
+
 export const activeAccountSchema = yup.object({
   body: yup.object({
-    active_token: yup.string().required('Active token is required'),
+    activeToken: yup.string().required('Active token is required'),
   }),
 });

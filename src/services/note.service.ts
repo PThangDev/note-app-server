@@ -182,11 +182,11 @@ export const deleteNotes = async (req: RequestAuth) => {
 // Move many notes to trash
 export const moveNotesToTrash = async (req: RequestAuth) => {
   const { noteIds } = req.body;
+  const { is_trash } = req.query;
+
   const user = req.user as User;
 
-  const dataUpdate = { is_trash: true };
-
-  console.log(noteIds);
+  const dataUpdate = { is_trash };
 
   const notesMovedToTrash = await NoteModel.updateMany(
     { _id: noteIds, user: user._id },

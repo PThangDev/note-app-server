@@ -17,6 +17,6 @@ const testController = async (req: RequestAuth, res: Response, next: NextFunctio
   }
 };
 
-testRouter.post('/', authMiddleware, testController);
+testRouter.post('/', authMiddleware(), testController);
 
 export default testRouter;

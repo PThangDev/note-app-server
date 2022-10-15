@@ -11,3 +11,7 @@ export const generateAccessToken = (payload: object, expiresIn: string = '7d') =
 export const generateRefreshToken = (payload: object, expiresIn: string = '30d') => {
   return jwt.sign(payload, `${process.env.REFRESH_TOKEN_SECRET}`, { expiresIn });
 };
+
+export const generateResetPasswordToken = (payload: object, expiresIn: string = '5m') => {
+  return jwt.sign(payload, `${process.env.RESET_PASSWORD_TOKEN_SECRET}`, { expiresIn });
+};

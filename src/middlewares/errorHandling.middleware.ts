@@ -39,7 +39,7 @@ const errorHandlingMiddleware: ErrorRequestHandler = (err, req, res, next) => {
     return res.status(401).json({
       status: 401,
       success: false,
-      message: 'Unauthorized. Please login or register',
+      message: 'Token is invalid. Please try again',
       data: err,
     });
   }
